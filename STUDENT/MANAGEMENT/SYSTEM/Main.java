@@ -1,12 +1,12 @@
 package PROJECTS.STUDENT.MANAGEMENT.SYSTEM;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Scanner;
 
-
 public class Main {
+
     static Scanner scanner = new Scanner(System.in);
+
+    // CALCULATE GPA
     public static double calculateGPA() {
         double totalPoint = 0;
         int numberOfCourse = 5;
@@ -36,8 +36,9 @@ public class Main {
                     totalPoint += 0.0;
                     break;
 
+
                 default:
-                    System.out.println("Invalid grade. Please enter A, B, C, D or F.");
+                    System.out.println("Invalid grade. " + "Enter A, B, C, D or F.");
                     i--;
                     break;
             }
@@ -45,173 +46,117 @@ public class Main {
         return totalPoint / numberOfCourse;
     }
     public static void main(String[] args) {
-        DatabaseConnection.getConnection();
+        int option;
 
-        ArrayList<Student_Management> students = new ArrayList<>();
-        int options;
-        do{
-            System.out.println("=========== STUDENTS MANAGEMENT SYSTEM ===========");
-            System.out.println("1. Add Students. ");
-            System.out.println("2. View Students. ");
-            System.out.println("3. Update Students Information. ");
-            System.out.println("4. Delete Student Details. ");
-            System.out.println("5. Search Student.");
-            System.out.println("6. Sort students by Programs");
-            System.out.println("7. Calculate Student's Grade Point Average (GPA). ");
-            System.out.println("8. Exit.");
-            System.out.println("=============================================");
-            System.out.print("Select Option to Start : ");
-            options = scanner.nextInt();
+        do {
+            System.out.println("\n=========== STUDENT MANAGEMENT SYSTEM ===========");
+            System.out.println("1. Add Student");
+            System.out.println("2. View Students");
+            System.out.println("3. Update Student Information");
+            System.out.println("4. Delete Student");
+            System.out.println("5. Search Student");
+            System.out.println("6. Sort Students by Program");
+            System.out.println("7. Calculate Student GPA");
+            System.out.println("8. Exit");
+            System.out.println("=================================================");
+            System.out.print("Select Option: ");
+
+            option = scanner.nextInt();
             scanner.nextLine();
 
-            switch (options){
-                case 1: // Adding Students
-                    System.out.println("==== Adding New Student Details To The School ===");
-                    String studentID;
-                    while (true) {
-                        System.out.print("Enter Students ID : ");
-                        studentID = scanner.nextLine();
-                        boolean idExists = false;
-                        for (Student_Management student : students) {
-                            if (student.getID().equalsIgnoreCase(studentID)) {
-                                idExists = true;
-                                break;
-                            }
-                        }
-                        if (idExists) {
-                            System.out.println("This Student ID already exists. Enter a different ID.");
-                        } else {
-                            break;
-                        }
+            switch (option) {
+                case 1:
+                    System.out.println("\n==== ADD NEW STUDENT ====");
+                    System.out.print("Enter Student ID: ");
+                    String studentID = scanner.nextLine();
+
+                    // Check if ID already exists
+                    Student_Management existingStudent = Student_Management.findStudentByID(studentID);
+
+                    if (existingStudent != null) {
+                        System.out.println("This Student ID already exists.");
+                        break;
                     }
 
-                    System.out.print("Enter Students full Name : ");
+                    System.out.print("Enter Student Full Name: ");
                     String fullName = scanner.nextLine();
 
-                    System.out.print("Enter Program to read : ");
-                    String courseRead = scanner.nextLine();
+                    System.out.print("Enter Program: ");
+                    String program = scanner.nextLine();
 
-                    System.out.print("Enter Level : ");
-                    int firstYear = scanner.nextInt();
+                    System.out.print("Enter Level: ");
+                    int level = scanner.nextInt();
                     scanner.nextLine();
-                    Student_Management freshers = new Student_Management(studentID, fullName, courseRead,firstYear);
-                    students.add(freshers);
-                    System.out.println("Student added Successfully.");
+
+                    Student_Management student = new Student_Management(studentID, fullName, program, level);
+                    student.saveToDatabase();
                     break;
 
-                case 2: // View Students
-                    if(students.isEmpty()){
-                        System.out.println("No Student In the System Yet, Start by Adding Student. Thanks");
-                    }else {
-                        System.out.println("\n ==================================  ALL  STUDENTS  ============================");
-                        System.out.printf(
-                                "%-5s %-10s %-20s %-25s %-10s %-10s%n",
-                                "No", "ID", "STUDENT NAME", "PROGRAM", "LEVEL", "GPA"
-                        );                        System.out.println("----------------------------------------------------------------------------------");
-                        int number = 1;
-                        for (Student_Management student : students){
-                            System.out.printf(
-                                    "%-5d %-10s %-20s %-25s %-10d %-10.2f%n",
-                                    number,
-                                    student.getID(),
-                                    student.getName(),
-                                    student.getProgram(),
-                                    student.getLevel(),
-                                    student.getGpa()
-                            );
-                            number++;
-                        }
-                        System.out.println("=================================================================================");
-                    }break;
+                case 2:
+                    Student_Management.viewStudentsFromDatabase();
+                    break;
 
-                case 3: // Updating Student Inform
-                    System.out.print("Enter Students ID to Update : ");
+                case 3:
+                    System.out.print("Enter Student ID to update: ");
                     String updateID = scanner.nextLine();
 
-                    boolean found = false;
-                    for(Student_Management student:students){
-                        if(student.getID().equalsIgnoreCase(updateID)){
-                            System.out.println("Student Found.");
-                            found = true;
+                    Student_Management studentToUpdate = Student_Management.findStudentByID(updateID);
+                    if (studentToUpdate == null) {
+                        System.out.println("Student not found.");
+                        break;
+                    }
+                    System.out.println("Student Found.");
 
-                            System.out.print("Enter new level : ");
-                            int updateLevel = scanner.nextInt();
-                            scanner.nextLine();
-                            student.setLevel(updateLevel);
-                            System.out.println("Student information updated successfully.");
-                            break;
-                        }
-                    }if(!found){
-                    System.out.println("Student not found!");
-                    }break;
+                    System.out.print("Enter new level: ");
+                    int newLevel = scanner.nextInt();
+                    scanner.nextLine();
 
-                case 4: // Deleting Students Details
-                    System.out.print("Enters Student ID to delete :");
+                    Student_Management.updateStudentLevel(updateID, newLevel);
+                    break;
+
+                case 4:
+                    System.out.print("Enter Student ID to delete: ");
                     String deleteID = scanner.nextLine();
+                    Student_Management.deleteStudent(deleteID);
+                    break;
 
-                    boolean delID = false;
-                    for (int i = 0; i < students.size(); i++) {
-                        if (students.get(i).getID().equalsIgnoreCase(deleteID)) {
-                            students.remove(i);
-                            delID = true;
-                            System.out.println("Student removed successfully.");
-                            break;
-                        }
-                    }if(!delID){
-                    System.out.println("Student Does not exist.");
-                    }break;
+                case 5:
+                    System.out.print("Enter Student ID to search: ");
+                    String searchID = scanner.nextLine();
+                    Student_Management.searchStudent(searchID);
+                    break;
 
-                case 5: // Searching A Student
-                    System.out.print("Enter ID to view Students Details :");
-                    String searchStudent = scanner.nextLine();
+                case 6:
+                    Student_Management.sortStudentsByProgram();
+                    break;
 
-                    boolean idFound = false;
-                    for (Student_Management student : students){
-                        if(student.getID().equalsIgnoreCase(searchStudent)){
-                            System.out.println("Student Found.");
-                            System.out.println("---------------------------");
-                            student.displayInformation();
-                            idFound = true;
-                            break;
-                        }
-                    }if(!idFound){
-                    System.out.println("Student of this ID those not exists.");
-                    }break;
+                case 7:
+                    System.out.print("Enter Student ID: ");
+                    String gpaID = scanner.nextLine();
 
-                case 6: // Sorting by Programs
-                    if(students.isEmpty()){
-                        System.out.println("No student Registered Yet, Try by Adding Students");
-                    }else {
-                        students.sort(Comparator.comparing(Student_Management :: getProgram));
-                        System.out.println("Students Sorted by Program Successfully.");
-                    }break;
+                    Student_Management gpaStudent = Student_Management.findStudentByID(gpaID);
 
-                case 7:  //Calculate GPA
-                    System.out.print("Enter Student ID :");
-                    String ID = scanner.nextLine();
-                    boolean id_found = false;
-                    for(Student_Management student : students){
-                        if(student.getID().equalsIgnoreCase(ID)){
-                            System.out.println("Student Found");
-                            double gpa = calculateGPA();
-                            student.setGpa(gpa);
-                            System.out.println("GPA: " + gpa);
-                            id_found = true;
-                        }
-                    }if(!id_found){
-                    System.out.println("Student Does not Exist.");
-                    }break;
+                    if (gpaStudent == null) {
+                        System.out.println("Student does not exist.");
+                        break;
+                    }
+                    System.out.println("Student Found.");
 
+                    double gpa = calculateGPA();
+                    System.out.printf("GPA: %.2f%n", gpa);
+                    Student_Management.updateGPA(gpaID, gpa);
+                    break;
 
-                case 8:  //Logging Out
-                    System.out.println("Thanks For Using Student Management System.");
-                    System.out.println("Logging Out......");
+                case 8:
+                    System.out.println("\nThanks for using " + "Student Management System.");
+                    System.out.println("Logging out...");
                     break;
 
                 default:
-                    System.out.println("Invalid Option, try Again.");
+                    System.out.println("Invalid option. Try again.");
                     break;
             }
-        }while (options != 8);
+        } while (option != 8);
+        scanner.close();
     }
 }
