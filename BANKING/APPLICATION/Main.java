@@ -6,7 +6,7 @@ public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        DatabaseConnection.getConnection();
+       // DatabaseConnection.getConnection();
 
         Bank bank = new Bank();
 
