@@ -8,6 +8,8 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        DatabaseConnection.getConnection();
+
         ArrayList <EXPENSES> expensesList = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
 

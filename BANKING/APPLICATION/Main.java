@@ -6,10 +6,11 @@ public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        DatabaseConnection.getConnection();
+
         Bank bank = new Bank();
 
         boolean running = true;
-
         while (running) {
             System.out.println("\n===== BANKING APPLICATION =====");
             System.out.println("1. Create Account");
@@ -19,7 +20,6 @@ public class Main {
 
             int choice = scanner.nextInt();
             scanner.nextLine();
-
             switch (choice) {
                 case 1:
                     System.out.print("Enter your name: ");
@@ -32,9 +32,12 @@ public class Main {
                     double deposit = scanner.nextDouble();
 
                     BankAccount account = bank.createAccount(name, pin, deposit);
-
-                    System.out.println("\nAccount created successfully!");
-                    System.out.println("Your account number is: " + account.getAccountNumber());
+                    if (account != null) {
+                        System.out.println("\nAccount created successfully!");
+                        System.out.println("Your account number is: " + account.getAccountNumber());
+                    } else {
+                        System.out.println("Account creation failed.");
+                    }
                     break;
 
                 case 2:
@@ -83,9 +86,9 @@ public class Main {
             System.out.println("7. Logout");
             System.out.println("-------------------------");
             System.out.print("Enter choice: ");
+
             int choice = scanner.nextInt();
             scanner.nextLine();
-
             switch (choice) {
                 case 1:  //Checking Balance
                     System.out.println("Balance: GH₵" + account.getBalance());

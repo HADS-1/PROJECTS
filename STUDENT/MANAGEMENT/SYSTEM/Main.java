@@ -45,6 +45,8 @@ public class Main {
         return totalPoint / numberOfCourse;
     }
     public static void main(String[] args) {
+        DatabaseConnection.getConnection();
+
         ArrayList<Student_Management> students = new ArrayList<>();
         int options;
         do{
