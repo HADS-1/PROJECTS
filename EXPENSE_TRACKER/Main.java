@@ -2,15 +2,10 @@ package PROJECTS.EXPENSE_TRACKER;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        DatabaseConnection.getConnection();
-
-        ArrayList <EXPENSES> expensesList = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
 
         int choice;
@@ -63,79 +58,29 @@ public class Main {
                         }
                     }
                     EXPENSES expense = new EXPENSES(expenseName, expenseAmount, expenseCategory, expenseDate);
-                    expensesList.add(expense);
+                    expense.saveToDatabase();
                     System.out.println("Expense Added Successfully.");
                     break;
 
                 case 2: // View All Expenses
-                    if (expensesList.isEmpty()) {
-                        System.out.println("No expenses recorded yet.");
-                    } else {
-                        System.out.println("\n=========================== ALL EXPENSES ===============================");
-                        System.out.printf("%-5s %-20s %-12s %-15s %-15s%n", "No.", "Name", "Amount", "Category", "Date");
-                        System.out.println("--------------------------------------------------------------------------");
-                        int number = 1;
-                        for (EXPENSES expenses : expensesList) {
-                            System.out.printf("%-5d %-20s GHC %-8.2f %-15s %-15s%n",
-                                    number,
-                                    expenses.getName(),
-                                    expenses.getAmount(),
-                                    expenses.getCategory(),
-                                    expenses.getDate());
-                            number++;
-                        }
-                        System.out.println("==========================================================================");
-                    }
+                    EXPENSES.viewExpensesFromDatabase();
                     break;
 
                 case 3: //Calculate Total
-                    double total = 0;
-                    for(EXPENSES expenses : expensesList){
-                        total += expenses.getAmount();
-                    }
-                    System.out.println("Total Expenses : GHC "+total);
-                    break;
+                   EXPENSES.calculateTotalFromDatabase();
+                   break;
 
                 case 4: // Spending By Category
-                    if (expensesList.isEmpty()) {
-                        System.out.println("No expenses recorded yet.");
-                    } else {
-                        HashMap<String, Double> categoryTotals = new HashMap<>();
-                        for (EXPENSES expenses : expensesList) {
-                            String category = expenses.getCategory();
-                            double amount = expenses.getAmount();
-                            categoryTotals.put(
-                                    category,
-                                    categoryTotals.getOrDefault(category, 0.0) + amount
-                            );
-                        }
-                        System.out.println("===== SPENDING BY CATEGORY =====");
-                        for (String category : categoryTotals.keySet()) {
-                            System.out.println(
-                                    category + ": GHC " + categoryTotals.get(category)
-                            );
-                        }
-                    }
+                  EXPENSES.spendingByCategoryFromDatabase();
                     break;
 
                 case 5: // Delete Expense
-                    if (expensesList.isEmpty()) {
-                        System.out.println("No expenses to delete.");
-                    } else {
-                        System.out.print("Enter expense number to delete: ");
-                        int expenseNumber = scanner.nextInt();
-                        scanner.nextLine();
-                        if (expenseNumber >= 1 && expenseNumber <= expensesList.size()) {
-                            EXPENSES deletedExpense = expensesList.remove(expenseNumber - 1);
-                            System.out.println(
-                                    deletedExpense.getName() + " deleted successfully."
-                            );
-                        } else {
-                            System.out.println("Invalid expense number.");
-                        }
-                    }
-                    break;
+                    System.out.print("Enter expense ID to delete: ");
+                    int expenseId = scanner.nextInt();
+                    scanner.nextLine();
 
+                    EXPENSES.deleteExpenseFromDatabase(expenseId);
+                    break;
 
                 case 6: // Exist
                     System.out.println("Exiting, Thank You for using Expense Tracker ....");
